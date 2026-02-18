@@ -1,0 +1,39 @@
+import numpy as np
+import pandas as pd
+from pgmpy.models import BayesianModel
+from pgmpy.estimators import MaximumLikelihoodEstimator
+from pgmpy.inference import VariableElimination
+
+
+data = pd.read_csv('corona_dataset.csv')
+
+
+data.replace({
+    'Cough': {'Yes': 1, 'No': 0},
+    'Fever': {'High': 1, 'Normal': 0},
+    'BreathingDifficulty': {'Yes': 1, 'No': 0},
+    'SoreThroat': {'Yes': 1, 'No': 0},
+    'CoronaInfection': {'Positive': 1, 'Negative': 0}
+}, inplace=True)
+
+
+model = BayesianModel([
+    ('Cough', 'CoronaInfection'),
+    ('Fever', 'CoronaInfection'),
+    ('BreathingDifficulty', 'CoronaInfection'),
+    ('SoreThroat', 'CoronaInfection')
+])
+
+
+model.fit(data, estimator=MaximumLikelihoodEstimator)
+
+
+inference = VariableElimination(model)
+
+
+query = inference.query(
+    variables=['CoronaInfection'],
+    evidence={'Cough': 1, 'Fever': 1}
+)
+
+print(query)
