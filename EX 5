@@ -1,0 +1,45 @@
+import pandas as pd
+import numpy as np
+
+
+data = pd.read_csv('data.csv')
+
+
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+
+for column in data.columns:
+    data[column] = le.fit_transform(data[column])
+
+
+from sklearn.model_selection import train_test_split
+
+X = data.drop('Play', axis=1)
+y = data['Play']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42
+)
+
+
+from sklearn.naive_bayes import MultinomialNB
+
+model = MultinomialNB()
+model.fit(X_train, y_train)
+
+
+y_pred = model.predict(X_test)
+
+
+from sklearn.metrics import accuracy_score
+
+accuracy = accuracy_score(y_test, y_pred)
+
+print("Accuracy:", accuracy * 100, "%")
+
+print("\nPredicted values:")
+print(y_pred)
+
+print("\nActual values:")
+print(y_test.values)
